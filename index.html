@@ -1,0 +1,298 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Mapa - Cristiane</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <script src="L.KML.js"></script>
+    <script src="leaflet.groupedlayercontrol.min.js"></script>
+    <link rel="stylesheet" href="leaflet.groupedlayercontrol.min.css">
+<script type="text/javascript" src="L.Control.ZoomBar.js"></script>
+<link rel="stylesheet" type="text/css" href="L.Control.ZoomBar.css"/>
+    <style>
+    body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map {
+    height: 100%;
+    width: 100vw;
+}
+#filterButton {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px;
+  z-index: 400;
+}
+
+/* Center the loader */
+#loader {
+    position: absolute;
+    z-index: 10000;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  background-color: white;
+    transition: 0.5s ease-in-out;
+}
+#spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60px;
+  height: 60px;
+  margin: -16px 0 0 -16px;
+  border: 5px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 5px solid #3498db;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+    </style>
+    
+  <!-- Load jQuery and PapaParse to read data from a CSV file -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script><script src="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.js"></script>
+  <script src="https://cdn.rawgit.com/hayeswise/Leaflet.PointInPolygon/v1.0.0/wise-leaflet-pip.js"></script>
+
+</head>
+<body>
+<div id="loader">
+    <div id="spinner"></div>
+</div>
+  <div id="map"></div>
+
+  <script>
+
+
+    var estacoes = new L.featureGroup();
+    var contiguas = new L.featureGroup();
+    var estf = L.layerGroup([]);
+    var estp = L.layerGroup([]);
+    var comdados = L.layerGroup([]);
+    var semdados = L.layerGroup([]);
+    var bacias = L.featureGroup();
+    var cuiaba = L.layerGroup([]);
+    var ecuiaba = L.layerGroup([]);
+    var saolourenco = L.layerGroup([]);
+    var esaolourenco = L.layerGroup([]);
+    var xingu = L.layerGroup([]);
+    var exingu = L.layerGroup([]);
+    
+    
+
+	var mbAttr = 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+	var mbUrl = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+
+	var grayscale = L.tileLayer(mbUrl, {id: 'mapbox/light-v9', tileSize: 512, zoomOffset: -1, attribution: mbAttr});
+	var streets = L.tileLayer(mbUrl, {id: 'mapbox/streets-v11', tileSize: 512, zoomOffset: -1, attribution: mbAttr});
+	var satellite = L.tileLayer(mbUrl, {id: 'mapbox/satellite-v9', tileSize: 512, zoomOffset: -1, attribution: mbAttr});
+
+	var map = L.map('map', {
+		zoom: 7,
+		layers: [satellite, bacias, cuiaba, saolourenco, xingu, ecuiaba, esaolourenco, exingu],
+		zoomControl: false
+	});
+    
+	var baseLayers = {
+		'Escala de Cinza': grayscale,
+		'Ruas': streets,
+		'Satelite': satellite
+	};
+    var groupedOverlays = {
+      "Estações": {
+		'Est. Fluviométricas': estf,
+		'Est. Pluviométricas': estp,
+		'Est. Contiguas': contiguas,
+	    'Est. na Bacia do Rio Cuiabá': ecuiaba,
+	    'Est. na Bacia do Rio São Lourenço': esaolourenco,
+	    'Est. na Bacia do Rio Xingu': exingu,
+	    'Tem dados': comdados,
+	    'Não tem dados': semdados,
+      },
+      "Bacias": {
+	    'Bacia do Rio Cuiabá': cuiaba,
+	    'Bacia do Rio São Lourenço': saolourenco,
+	    'Bacia do Rio Xingu': xingu
+      }
+    };
+/*
+	var overlays = {
+		'Estações': estacoes,
+		'-Est. Fluviométricas': estf,
+		'-Est. Pluviométricas': estp,
+		'-Est. Contiguas': contiguas,
+	    '-Est. na Bacia do Rio Cuiabá': ecuiaba,
+	    '-Est. na Bacia do Rio São Lourenço': esaolourenco,
+	    '-Est. na Bacia do Rio Xingu': exingu,
+		'Bacias': bacias,
+	    '-Bacia do Rio Cuiabá': cuiaba,
+	    '-Bacia do Rio São Lourenço': saolourenco,
+	    '-Bacia do Rio Xingu': xingu
+	};
+*/
+    var greenIcon = new L.Icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+    
+    var blueIcon = new L.Icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+    
+/*	var layerControl = L.control.layers(baseLayers, overlays).addTo(map);*/
+	var options = {
+      // Show a checkbox next to non-exclusive group labels for toggling all
+      groupCheckboxes: true
+    };
+	L.control.groupedLayers(baseLayers, groupedOverlays, options).addTo(map);
+	
+	fetch('MT.kml')
+      .then( res => res.text() )
+      .then( kmltext => {
+
+            // Create new kml overlay
+            parser = new DOMParser();
+            kml = parser.parseFromString(kmltext,"text/xml");
+
+            console.log(kml)
+
+            const track = new L.KML(kml)
+            map.addLayer(track)
+
+            // Adjust map to show the kml
+            const bounds = track.getBounds()
+            map.fitBounds( bounds );
+            var zoom_bar = new L.Control.ZoomBar({position: 'topleft'}).addTo(map);
+      })
+	
+    fetch("bacias.json").then(res => res.json()).then(data => {
+
+        for ( var i=0; i < data.features.length; i++ ) {
+        feat = data.features[i];
+        coords = [];
+        for ( var j = 0 ; j < feat.geometry.coordinates[0].length - 1; j++ ) {
+            coord = feat.geometry.coordinates[0][j];
+            point = [];
+            point.push( coord[1], coord[0]);
+            coords.push( point );
+        }
+        var cuiabaPoligono;
+        var saolourencoPoligono;
+        var xinguPoligono;
+        if (feat.properties.id == 14629) {
+            cuiabaPoligono = L.polygon( coords, {color: feat.properties.cor} );
+            cuiabaPoligono.bindPopup(feat.properties.name).addTo(cuiaba).addTo(bacias);
+        }
+        if (feat.properties.id == 14613) {
+            saolourencoPoligono = L.polygon( coords, {color: feat.properties.cor} );
+            saolourencoPoligono.bindPopup(feat.properties.name).addTo(saolourenco).addTo(bacias);
+        }
+        if (feat.properties.id == 14614) {
+            xinguPoligono = L.polygon( coords, {color: feat.properties.cor} );
+            xinguPoligono.bindPopup(feat.properties.name).addTo(xingu).addTo(bacias);
+        }
+    }
+    
+    var source = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS3eObOQZhAPMLhm-aTk3xbXZz5Ukaxt1Ur6T60OKvaMn_cHQVLOF4KTXWY-Cs800MYvGLjMh5Yp4xK/pub?gid=571153365&single=true&output=csv';
+          // Read markers data from data.csv
+  $.get(source, function(csvString) {
+
+    // Use PapaParse to convert string to array of objects
+    var data = Papa.parse(csvString, {header: true, dynamicTyping: true}).data;
+
+    // For each row in data, create a marker and add it to the map
+    // For each row, columns `Latitude`, `Longitude`, and `Title` are required
+    for (var i in data) {
+      var row = data[i];
+      var popup = '<p>' + row.CODIGO + '</p>';
+      var tipo = row.TIPOESTACAO;
+      var latitude = row.LATITUDE;
+      var longitude = row.LONGITUDE;
+      var temDados = row.TEM_DADOS;
+      if (!(latitude) || !(longitude)) {
+          console.log('Estação com dados inválidos: ' + row);
+      } else {
+          if (tipo == 'Pluviométrica') {
+            var marker = L.marker([row.LATITUDE, row.LONGITUDE], {
+                opacity: 1,
+                icon: blueIcon
+            }).bindPopup(popup);
+            if (cuiabaPoligono.contains(marker.getLatLng())) {
+                marker.addTo(estp).addTo(estacoes).addTo(ecuiaba).addTo(map);
+                console.log('Pluviométrica, cuiaba, ' + row.CODIGO);
+            } else if (saolourencoPoligono.contains(marker.getLatLng())) {
+                marker.addTo(estp).addTo(estacoes).addTo(esaolourenco).addTo(map);
+                console.log('Pluviométrica, saolourenco, ' + row.CODIGO);
+            } else if (xinguPoligono.contains(marker.getLatLng())) {
+                marker.addTo(estp).addTo(estacoes).addTo(exingu).addTo(map);
+                console.log('Pluviométrica, xingu, ' + row.CODIGO);
+            } else {
+                marker.addTo(estp).addTo(contiguas);
+            }
+          } else {
+            var marker = L.marker([row.LATITUDE, row.LONGITUDE], {
+                opacity: 1,
+                icon: greenIcon
+            }).bindPopup(popup);
+            if (cuiabaPoligono.contains(marker.getLatLng())) {
+                marker.addTo(estf).addTo(estacoes).addTo(ecuiaba).addTo(map);
+                console.log('Fluviométrica, cuiaba, ' + row.CODIGO);
+            } else if (saolourencoPoligono.contains(marker.getLatLng())) {
+                marker.addTo(estf).addTo(estacoes).addTo(esaolourenco).addTo(map);
+                console.log('Fluviométrica, saolourenco, ' + row.CODIGO);
+            } else if (xinguPoligono.contains(marker.getLatLng())) {
+                marker.addTo(estf).addTo(estacoes).addTo(exingu).addTo(map);
+                console.log('Fluviométrica, xingu, ' + row.CODIGO);
+            } else {
+                marker.addTo(estf).addTo(contiguas);
+            }
+              
+          }
+          if (temDados == 'Sim') {
+              marker.addTo(comdados);
+          } else {
+              marker.addTo(semdados);
+          }
+      }
+      
+    };
+    
+  document.getElementById("loader").style.display = "none";
+
+  });
+});
+
+  /*
+  window.onload = setTimeout(function centralizar() {
+    map.fitBounds(estacoes.getBounds());
+  }, 5000);*/
+
+  </script>
+</body>
+</html>
