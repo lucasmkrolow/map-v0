@@ -85,6 +85,8 @@ html, body, #map {
     var contiguas = new L.featureGroup();
     var estf = L.layerGroup([]);
     var estp = L.layerGroup([]);
+    var estma = L.layerGroup([]);
+    var estmc = L.layerGroup([]);
     var comdados = L.layerGroup([]);
     var semdados = L.layerGroup([]);
     var bacias = L.featureGroup();
@@ -119,6 +121,8 @@ html, body, #map {
       "Estações": {
 		'Est. Fluviométricas': estf,
 		'Est. Pluviométricas': estp,
+		'Est. Met. Auto': estma,
+		'Est. Met. Conv.': estmc,
 		'Est. Contiguas': contiguas,
 	    'Est. na Bacia do Rio Cuiabá': ecuiaba,
 	    'Est. na Bacia do Rio São Lourenço': esaolourenco,
@@ -247,16 +251,16 @@ html, body, #map {
                 icon: redIcon
             }).bindPopup(popup);
             if (cuiabaPoligono.contains(marker.getLatLng())) {
-                marker.addTo(estp).addTo(estacoes).addTo(ecuiaba).addTo(map);
+                marker.addTo(estma).addTo(estacoes).addTo(ecuiaba).addTo(map);
                 console.log('AUTOMÁTICA, cuiaba, ' + row.CODIGO);
             } else if (saolourencoPoligono.contains(marker.getLatLng())) {
-                marker.addTo(estp).addTo(estacoes).addTo(esaolourenco).addTo(map);
+                marker.addTo(estma).addTo(estacoes).addTo(esaolourenco).addTo(map);
                 console.log('AUTOMÁTICA, saolourenco, ' + row.CODIGO);
             } else if (xinguPoligono.contains(marker.getLatLng())) {
-                marker.addTo(estp).addTo(estacoes).addTo(exingu).addTo(map);
+                marker.addTo(estma).addTo(estacoes).addTo(exingu).addTo(map);
                 console.log('AUTOMÁTICA, xingu, ' + row.CODIGO);
             } else {
-                marker.addTo(estp).addTo(contiguas);
+                marker.addTo(estmc).addTo(contiguas);
             }
           } else {
             var marker = L.marker([latitude, longitude], {
@@ -264,16 +268,16 @@ html, body, #map {
                 icon: yellowIcon
             }).bindPopup(popup);
             if (cuiabaPoligono.contains(marker.getLatLng())) {
-                marker.addTo(estf).addTo(estacoes).addTo(ecuiaba).addTo(map);
+                marker.addTo(estmc).addTo(estacoes).addTo(ecuiaba).addTo(map);
                 console.log('CONVENCIONAL, cuiaba, ' + row.CODIGO);
             } else if (saolourencoPoligono.contains(marker.getLatLng())) {
-                marker.addTo(estf).addTo(estacoes).addTo(esaolourenco).addTo(map);
+                marker.addTo(estmc).addTo(estacoes).addTo(esaolourenco).addTo(map);
                 console.log('CONVENCIONAL, saolourenco, ' + row.CODIGO);
             } else if (xinguPoligono.contains(marker.getLatLng())) {
-                marker.addTo(estf).addTo(estacoes).addTo(exingu).addTo(map);
+                marker.addTo(estmc).addTo(estacoes).addTo(exingu).addTo(map);
                 console.log('CONVENCIONAL, xingu, ' + row.CODIGO);
             } else {
-                marker.addTo(estf).addTo(contiguas);
+                marker.addTo(estmc).addTo(contiguas);
             }
               
           }
