@@ -250,7 +250,7 @@ html, body, #map {
                 marker.addTo(estp).addTo(contiguas);
             }
           } else {
-            var marker = L.marker([row.LATITUDE, row.LONGITUDE], {
+            var marker = L.marker([latitude, longitude], {
                 opacity: 1,
                 icon: redIcon
             }).bindPopup(popup);
