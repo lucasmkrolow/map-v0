@@ -159,6 +159,15 @@ html, body, #map {
       shadowSize: [41, 41]
     });
     
+    var yellowIcon = new L.Icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+    
     
 /*	var layerControl = L.control.layers(baseLayers, overlays).addTo(map);*/
 	var options = {
@@ -252,7 +261,7 @@ html, body, #map {
           } else {
             var marker = L.marker([latitude, longitude], {
                 opacity: 1,
-                icon: redIcon
+                icon: yellowIcon
             }).bindPopup(popup);
             if (cuiabaPoligono.contains(marker.getLatLng())) {
                 marker.addTo(estf).addTo(estacoes).addTo(ecuiaba).addTo(map);
