@@ -219,14 +219,14 @@ html, body, #map {
   $.get(meteorologicas, function(csvString) {
 
     // Use PapaParse to convert string to array of objects
-    var mdata = Papa.parse(csvString, {header: true, dynamicTyping: true}).mdata;
+    var data = Papa.parse(csvString, {header: true, dynamicTyping: true}).data;
 
     // For each row in data, create a marker and add it to the map
     // For each row, columns `Latitude`, `Longitude`, and `Title` are required
-    for (var mi in mdata) {
-      var row = mdata[mi];
+    for (var i in data) {
+      var row = data[i];
       var popup = '<p>' + row.CODIGO + '</p>';
-      var tipo = row.TIPO
+      var tipo = row.TIPO;
       var latitude = row.LATITUDE;
       var longitude = row.LONGITUDE;
       if (!(latitude) || !(longitude)) {
