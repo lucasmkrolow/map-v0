@@ -227,8 +227,8 @@ html, body, #map {
       var row = data[i];
       var popup = '<p>' + row.CODIGO + '</p>';
       var tipo = row.TIPO;
-      var latitude = row.LATITUDE;
-      var longitude = row.LONGITUDE;
+      var latitude = row.LATITUDE.replace(',','.');
+      var longitude = row.LONGITUDE.replace(',','.');
       if (!(latitude) || !(longitude)) {
           console.log('Estação com dados inválidos: ' + row);
       } else {
