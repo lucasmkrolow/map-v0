@@ -227,13 +227,13 @@ html, body, #map {
       var row = data[i];
       var popup = '<p>' + row.CODIGO + '</p>';
       var tipo = row.TIPO;
-      var latitude = row.LATITUDE.replace(',','.');
-      var longitude = row.LONGITUDE.replace(',','.');
+      var latitude = row.LATITUDE.replace(",",".");
+      var longitude = row.LONGITUDE.replace(",",".");
       if (!(latitude) || !(longitude)) {
           console.log('Estação com dados inválidos: ' + row);
       } else {
           if (tipo == 'AUTOMÁTICA') {
-            var marker = L.marker([row.LATITUDE, row.LONGITUDE], {
+            var marker = L.marker([latitude, longitude], {
                 opacity: 1,
                 icon: redIcon
             }).bindPopup(popup);
