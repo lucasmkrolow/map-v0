@@ -88,6 +88,7 @@ html, body, #map {
     var estma = L.layerGroup([]);
     var estmc = L.layerGroup([]);
     var comdados = L.layerGroup([]);
+    var intervalodados = L.layerGroup([]);
     var semdados = L.layerGroup([]);
     var bacias = L.featureGroup();
     var cuiaba = L.layerGroup([]);
@@ -129,6 +130,7 @@ html, body, #map {
 	    'Est. na Bacia do Rio Xingu': exingu,
 	    'Tem dados': comdados,
 	    'Não tem dados': semdados,
+	    'Tem dados no intervalo': intervalodados,
       },
       "Bacias": {
 	    'Bacia do Rio Cuiabá': cuiaba,
@@ -303,6 +305,7 @@ html, body, #map {
       var latitude = row.LATITUDE;
       var longitude = row.LONGITUDE;
       var temDados = row.TEM_DADOS;
+      var dadosNoIntervalo = row.INTERVALO_DADOS;
       if (!(latitude) || !(longitude)) {
           console.log('Estação com dados inválidos: ' + row);
       } else {
@@ -346,6 +349,9 @@ html, body, #map {
               marker.addTo(comdados);
           } else {
               marker.addTo(semdados);
+          }
+          if (dadosNoIntervalo == 'Sim') {
+              marker.addTo(intervalodados);
           }
       }
       
